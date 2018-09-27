@@ -48,7 +48,10 @@ if [[ -f "composer.phar" && -f "composer.json" ]]; then
 fi
 
 cd ${DIR}
-if [[ -f "${DIR}/${MIGRATE_PATH}" ]] && ( [[ -d "${PROJECT_PATH_FULL}/local/modules/${MIGRATE_MODULE_NAME}" ]] || [[ -d "${PROJECT_PATH_FULL}/bitrix/modules/${MIGRATE_MODULE_NAME}" ]] ); then
+MIGRATE_FILE="${DIR}/${MIGRATE_PATH}"
+LOCAL_MIGRATE_MODULE="${PROJECT_PATH_FULL}/local/modules/${MIGRATE_MODULE_NAME}"
+BITRIX_MIGRATE_MODULE="${PROJECT_PATH_FULL}/bitrix/modules/${MIGRATE_MODULE_NAME}"
+if [[ -f "${MIGRATE_FILE}" ]] && ( [[ -d "${LOCAL_MIGRATE_MODULE}" ]] || [[ -d "${BITRIX_MIGRATE_MODULE}" ]] ); then
     echo "начало миграций"
     ${PHP_PATH} ${MIGRATE_PATH} ${PROJECT_PATH_FULL}
     # добавить проверку на ошибки
