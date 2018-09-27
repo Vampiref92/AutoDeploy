@@ -1,4 +1,15 @@
 #!/usr/bin/env php
 <?php
 
-require_once realpath(__DIR__) . '/../modules/sprint.migration/tools/migrate.php';
+
+$localPath = realpath(__DIR__ . '/..');
+$toolPath = $localPath.'/modules/sprint.migration/tools/migrate.php';
+if(file_exists($toolPath)) {
+    require_once $toolPath;
+} else {
+    $bitrixPath = realpath($localPath.'/../bitrix');
+    $toolPath = $bitrixPath.'/modules/sprint.migration/tools/migrate.php';
+    if(file_exists($toolPath)) {
+        require_once $toolPath;
+    }
+}
