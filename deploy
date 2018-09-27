@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Подключаем файл настроек
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOCAL_SETTINGS_PATH="${DIR}/.."
 PROJECT_PATH="${DIR}/../.."
 
-if [[ -f "${DIR}/settings/base.ini" ]]; then
-    . ${DIR}/settings/base.ini
-    if [[ -f "${DIR}/settings/${ENV_TYPE}.ini" ]]; then
-        . ${DIR}/settings/${ENV_TYPE}.ini
+# Подключаем файл настроек
+if [[ -f "${DIR}/tools/deploy_settings/base.ini" ]]; then
+    . ${DIR}/tools/deploy_settings/base.ini
+    if [[ -f "${DIR}/tools/deploy_settings/${ENV_TYPE}.ini" ]]; then
+        . ${DIR}/tools/deploy_settings/${ENV_TYPE}.ini
     else
         echo "Файл настроек для зоны не найден"
         exit 25
