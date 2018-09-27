@@ -1,0 +1,10 @@
+GIT_BRANCH="dev"
+
+PHP_PATH="php"
+
+# расположение композера относительно корня сайта
+COMPOSER_DIRECTORY="local"
+
+# настройка миграций
+MIGRATE_PATH="local/tools/migrate"
+MIGRATE_MODULE_NAME="sprint.migration"
