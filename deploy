@@ -1,14 +1,13 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-LOCAL_SETTINGS_PATH="${DIR}/.."
-PROJECT_PATH="${DIR}/../.."
+TOOLS_PATH="${DIR}/.."
 
 # Подключаем файл настроек
-if [[ -f "${DIR}/tools/deploy_settings/base.ini" ]]; then
-    . ${DIR}/tools/deploy_settings/base.ini
-    if [[ -f "${DIR}/tools/deploy_settings/${ENV_TYPE}.ini" ]]; then
-        . ${DIR}/tools/deploy_settings/${ENV_TYPE}.ini
+if [[ -f "${TOOLS_PATH}/deploy_settings/base.ini" ]]; then
+    . ${TOOLS_PATH}/deploy_settings/base.ini
+    if [[ -f "${TOOLS_PATH}/deploy_settings/${ENV_TYPE}.ini" ]]; then
+        . ${TOOLS_PATH}/deploy_settings/${ENV_TYPE}.ini
     else
         echo "Файл настроек для зоны не найден"
         exit 25
@@ -17,17 +16,19 @@ else
     echo "Файл настроек не найден"
     exit 25
 fi
+PROJECT_PATH_FULL="${DIR}${PROJECT_PATH}"
 
 # подключаем телеграм чат
 #. ./lib/telegram
 
-cd ${PROJECT_PATH}
+cd ${PROJECT_PATH_FULL}
 #send_telegram_message "начато обновление зоны ${ENV_TYPE}";
 echo "Получение изменений из git"
-git pull --quiet origin ${GIT_BRANCH}
+git pull -q -v origin ${GIT_BRANCH}
 # сделать проверку на ошибки из гита
 echo "Изменения из git получены"
 echo "======"
+
 cd ${COMPOSER_DIRECTORY}
 if [[ ! -f "composer.phar" ]]; then
     echo "не найден файл composer"
@@ -45,10 +46,11 @@ if [[ -f "composer.phar" && -f "composer.json" ]]; then
     echo "Установка пакетов из composer завершена"
     echo "======"
 fi
-cd ${PROJECT_PATH}
-if [[ -f "${MIGRATE_PATH}" ]] && ( [[ -d "local/modules/${MIGRATE_MODULE_NAME}" ]] || [[ -d "bitrix/modules/${MIGRATE_MODULE_NAME}" ]] ); then
+
+cd ${DIR}
+if [[ -f "${DIR}${MIGRATE_PATH}" ]] && ( [[ -d "${PROJECT_PATH_FULL}/local/modules/${MIGRATE_MODULE_NAME}" ]] || [[ -d "${PROJECT_PATH_FULL}bitrix/modules/${MIGRATE_MODULE_NAME}" ]] ); then
     echo "начало миграций"
-    ${PHP_PATH} ${MIGRATE_PATH} up
+    ${PHP_PATH} ${MIGRATE_PATH} ${PROJECT_PATH_FULL}
     # добавить проверку на ошибки
     echo "Миграции установлены"
     echo "======"
