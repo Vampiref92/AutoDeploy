@@ -7,7 +7,7 @@
 Либо устанавливаем через композер vf92/auto_deploy, добавив определения места установки через 
 ```js
 "require": {
-    "vf92/auto_deploy": "^1.1.1
+    "vf92/auto_deploy": "^1.1.1"
 },
 "extra": {
     "installer-paths": {
