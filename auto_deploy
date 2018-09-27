@@ -2,12 +2,13 @@
 
 # Подключаем файл настроек
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOCAL_SETTINGS_PATH="${DIR}/.."
 PROJECT_PATH="${DIR}/../.."
 
-if [[ -f "${DIR}/deploy_include/deploy_settings.ini" ]]; then
-    . ${DIR}/deploy_include/deploy_settings.ini
-    if [[ -f "${DIR}/deploy_include/deploy_settings.${ENV_TYPE}" ]]; then
-        . ${DIR}/deploy_include/deploy_settings.${ENV_TYPE}
+if [[ -f "${DIR}/settings/base.ini" ]]; then
+    . ${DIR}/settings/base.ini
+    if [[ -f "${DIR}/settings/${ENV_TYPE}.ini" ]]; then
+        . ${DIR}/settings/${ENV_TYPE}.ini
     else
         echo "Файл настроек для зоны не найден"
         exit 25
@@ -18,7 +19,7 @@ else
 fi
 
 # подключаем телеграм чат
-#. ./deploy_include/telegram.sh
+#. ./lib/telegram
 
 cd ${PROJECT_PATH}
 #send_telegram_message "начато обновление зоны ${ENV_TYPE}";
@@ -36,9 +37,9 @@ fi
 if [[ -f "composer.phar" && -f "composer.json" ]]; then
     echo "начало установки пакетов из composer"
     if [[ "${ENV_TYPE}" = "dev" ]]; then
-        ${PHP_PATH} -d memory_limit = 1024M composer.phar install --dev
+        ${PHP_PATH} -d memory_limit=1024M composer.phar install
     else
-        ${PHP_PATH} -d memory_limit = 1024M composer.phar install --no-dev
+        ${PHP_PATH} -d memory_limit=1024M composer.phar install --no-dev
     fi
     # добавить проверку на ошибки
     echo "Установка пакетов из composer завершена"
