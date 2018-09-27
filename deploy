@@ -16,7 +16,7 @@ else
     echo "Файл настроек не найден"
     exit 25
 fi
-PROJECT_PATH_FULL="${DIR}${PROJECT_PATH}"
+PROJECT_PATH_FULL="${DIR}/${PROJECT_PATH}"
 
 # подключаем телеграм чат
 #. ./lib/telegram
@@ -29,7 +29,7 @@ git pull -q -v origin ${GIT_BRANCH}
 echo "Изменения из git получены"
 echo "======"
 
-cd ${COMPOSER_DIRECTORY}
+cd ./${COMPOSER_DIRECTORY}
 if [[ ! -f "composer.phar" ]]; then
     echo "не найден файл composer"
     echo "======"
@@ -48,7 +48,7 @@ if [[ -f "composer.phar" && -f "composer.json" ]]; then
 fi
 
 cd ${DIR}
-if [[ -f "${DIR}${MIGRATE_PATH}" ]] && ( [[ -d "${PROJECT_PATH_FULL}/local/modules/${MIGRATE_MODULE_NAME}" ]] || [[ -d "${PROJECT_PATH_FULL}bitrix/modules/${MIGRATE_MODULE_NAME}" ]] ); then
+if [[ -f "${DIR}/${MIGRATE_PATH}" ]] && ( [[ -d "${PROJECT_PATH_FULL}/local/modules/${MIGRATE_MODULE_NAME}" ]] || [[ -d "${PROJECT_PATH_FULL}/bitrix/modules/${MIGRATE_MODULE_NAME}" ]] ); then
     echo "начало миграций"
     ${PHP_PATH} ${MIGRATE_PATH} ${PROJECT_PATH_FULL}
     # добавить проверку на ошибки
