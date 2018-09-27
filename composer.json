@@ -2,7 +2,7 @@
   "name": "vf92/auto_deploy",
   "description": "Автодеплой для Битрикс проектов",
   "homepage": "https://github.com/Vampiref92/AutoDeploy",
-  "type": "bitrix-tool",
+  "type": "wordpress-plugin",
   "license": "proprietary",
   "keywords": [
     "git",
