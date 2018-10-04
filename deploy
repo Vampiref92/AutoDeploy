@@ -3,6 +3,19 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOOLS_PATH="${DIR}/.."
 
+CURRENT_BRANCH="$(git symbolic-ref --short HEAD)"
+
+# Проверка веток, если отличаются предупреждаем
+if [[ "${CURRENT_BRANCH}" != "${GIT_BRANCH}" ]]; then
+    echo "Текущая ветка отлична от установленной. установленная - ${GIT_BRANCH}, текущая - ${CURRENT_BRANCH}";
+    # Проверяем разрешено ли продолжать работу
+    if [[ "${CONTINUE_DIFFERENCE}" != "Y" ]]; then
+        exit 25;
+    else
+        GIT_BRANCH="${CURRENT_BRANCH}";
+    fi
+fi
+
 # Подключаем файл настроек
 if [[ -f "${TOOLS_PATH}/deploy_settings/base.ini" ]]; then
     . ${TOOLS_PATH}/deploy_settings/base.ini
@@ -24,7 +37,8 @@ PROJECT_PATH_FULL="${DIR}/${PROJECT_PATH}"
 cd ${PROJECT_PATH_FULL}
 #send_telegram_message "начато обновление зоны ${ENV_TYPE}";
 echo "Получение изменений из git"
-git pull -q -v origin ${GIT_BRANCH}
+git pull -q -v --no-ff origin ${GIT_BRANCH}
+git push origin ${GIT_BRANCH}
 # сделать проверку на ошибки из гита
 echo "Изменения из git получены"
 echo "======"
@@ -38,9 +52,9 @@ fi
 if [[ -f "composer.phar" && -f "composer.json" ]]; then
     echo "начало установки пакетов из composer"
     if [[ "${ENV_TYPE}" = "dev" ]]; then
-        ${PHP_PATH} -d memory_limit=1024M composer.phar install
+        ${PHP_PATH} -d memory_limit=512M composer.phar install
     else
-        ${PHP_PATH} -d memory_limit=1024M composer.phar install --no-dev
+        ${PHP_PATH} -d memory_limit=512M composer.phar install --no-dev
     fi
     # добавить проверку на ошибки
     echo "Установка пакетов из composer завершена"
@@ -59,6 +73,10 @@ if [[ -f "${MIGRATE_FILE}" ]] && ( [[ -d "${LOCAL_MIGRATE_MODULE}" ]] || [[ -d "
     echo "======"
 fi
 if [[ "${ENV_TYPE}" = "prod" ]]; then
+    if [[ "${DEL_BRANCH}" = "Y" ]]; then
+        git branch -d ${GIT_BRANCH}
+        git push origin --delete ${GIT_BRANCH}
+    fi
     git remote prune origin
     echo "Очистка git завершена"
     echo "======"
