@@ -38,11 +38,14 @@ cd ${PROJECT_PATH_FULL}
 #send_telegram_message "начато обновление зоны ${ENV_TYPE}";
 echo "Получение изменений из git"
 git pull -q -v --no-ff --no-edit origin ${GIT_BRANCH}
+#разобраться с флагами
 git push origin ${GIT_BRANCH}
 # сделать проверку на ошибки из гита
 if [[ -f ".gitmodules" ]]; then
     git submodule update
-    git submodule foreach "git pull origin master && git push origin master"
+    SUB_BRANCH="master"
+    git submodule foreach "git checkout ${SUB_BRANCH} && git pull -q -v --no-ff --no-edit origin ${SUB_BRANCH} && git push origin ${SUB_BRANCH}"
+    # сделать проверку на ошибки из гита
 fi
 echo "Изменения из git получены"
 echo "======"
