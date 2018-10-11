@@ -5,17 +5,6 @@ TOOLS_PATH="${DIR}/.."
 
 CURRENT_BRANCH="$(git symbolic-ref --short HEAD)"
 
-# Проверка веток, если отличаются предупреждаем
-if [[ "${CURRENT_BRANCH}" != "${GIT_BRANCH}" ]]; then
-    echo "Текущая ветка отлична от установленной. установленная - ${GIT_BRANCH}, текущая - ${CURRENT_BRANCH}";
-    # Проверяем разрешено ли продолжать работу
-    if [[ "${CONTINUE_DIFFERENCE}" != "Y" ]]; then
-        exit 25;
-    else
-        GIT_BRANCH="${CURRENT_BRANCH}";
-    fi
-fi
-
 # Подключаем файл настроек
 if [[ -f "${TOOLS_PATH}/deploy_settings/base.ini" ]]; then
     . ${TOOLS_PATH}/deploy_settings/base.ini
@@ -31,15 +20,30 @@ else
 fi
 PROJECT_PATH_FULL="${DIR}/${PROJECT_PATH}"
 
+# Проверка веток, если отличаются предупреждаем
+if [[ "${CURRENT_BRANCH}" != "${GIT_BRANCH}" ]]; then
+    echo "Текущая ветка отлична от установленной. установленная - ${GIT_BRANCH}, текущая - ${CURRENT_BRANCH}";
+    # Проверяем разрешено ли продолжать работу
+    if [[ "${CONTINUE_DIFFERENCE}" != "Y" ]]; then
+        exit 25;
+    else
+        GIT_BRANCH="${CURRENT_BRANCH}";
+    fi
+fi
+
 # подключаем телеграм чат
 #. ./lib/telegram
 
 cd ${PROJECT_PATH_FULL}
 #send_telegram_message "начато обновление зоны ${ENV_TYPE}";
 echo "Получение изменений из git"
-git pull -q -v --no-ff origin ${GIT_BRANCH}
+git pull -q -v --no-ff --no-edit origin ${GIT_BRANCH}
 git push origin ${GIT_BRANCH}
 # сделать проверку на ошибки из гита
+if [[ -f ".gitmodules" ]]; then
+    git submodule update
+    git submodule foreach "git pull origin master && git push origin master"
+fi
 echo "Изменения из git получены"
 echo "======"
 
