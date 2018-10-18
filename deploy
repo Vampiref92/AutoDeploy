@@ -39,10 +39,15 @@ fi
 #. ./lib/telegram
 
 cd ${PROJECT_PATH_FULL}
-#send_telegram_message "начато обновление зоны ${ENV_TYPE}";
+STATUS=$(git status --short)
+if [[ -n "${STATUS}" ]]; then
+    echo "Есть незакомиченные изменния"
+    exit 25
+fi
+# проверить изменения и закоммитить их если они есть
+# send_telegram_message "начато обновление зоны ${ENV_TYPE}";
 echo "Получение изменений из git"
-git pull -q -v --no-ff --no-edit origin ${GIT_BRANCH}
-#разобраться с флагами
+git pull -q -v --ff --no-edit origin ${GIT_BRANCH}
 git push origin ${GIT_BRANCH}
 # сделать проверку на ошибки из гита
 if [[ -f ".gitmodules" ]]; then
@@ -51,7 +56,7 @@ if [[ -f ".gitmodules" ]]; then
         SUB_BRANCH="master"
     fi;
     if [[ -n ${SUB_BRANCH} ]]; then
-        git submodule foreach "git checkout ${SUB_BRANCH} && git pull -q -v --no-ff --no-edit origin ${SUB_BRANCH} && git push origin ${SUB_BRANCH}"
+        git submodule foreach "git checkout ${SUB_BRANCH} && git pull -q -v --ff --no-edit origin ${SUB_BRANCH} && git push origin ${SUB_BRANCH}"
     fi
     # сделать проверку на ошибки из гита
 fi
@@ -67,9 +72,14 @@ fi
 if [[ -f "composer.phar" && -f "composer.json" ]]; then
     echo "начало установки пакетов из composer"
     if [[ "${ENV_TYPE}" = "dev" ]]; then
-        ${PHP_PATH} -d memory_limit=512M composer.phar install
+        STATUS=$(${PHP_PATH} -d memory_limit=512M composer.phar install)
     else
-        ${PHP_PATH} -d memory_limit=512M composer.phar install --no-dev
+        STATUS=$(${PHP_PATH} -d memory_limit=512M composer.phar install --no-dev)
+    fi
+    if [[ ${STATUS} =~ "error" ]]; then
+        echo "${STATUS}"
+        echo "Ошибка при установке композера"
+        exit 25
     fi
     # добавить проверку на ошибки
     echo "Установка пакетов из composer завершена"
@@ -82,7 +92,12 @@ LOCAL_MIGRATE_MODULE="${PROJECT_PATH_FULL}/local/modules/${MIGRATE_MODULE_NAME}"
 BITRIX_MIGRATE_MODULE="${PROJECT_PATH_FULL}/bitrix/modules/${MIGRATE_MODULE_NAME}"
 if [[ -f "${MIGRATE_FILE}" ]] && ( [[ -d "${LOCAL_MIGRATE_MODULE}" ]] || [[ -d "${BITRIX_MIGRATE_MODULE}" ]] ); then
     echo "начало миграций"
-    ${PHP_PATH} ${MIGRATE_PATH} ${PROJECT_PATH_FULL}
+    STATUS=$(${PHP_PATH} ${MIGRATE_PATH} ${PROJECT_PATH_FULL})
+    if [[ ${STATUS} =~ "error" ]]; then
+        echo "${STATUS}"
+        echo "Ошибка при установке миграций"
+        exit 25
+    fi
     # добавить проверку на ошибки
     echo "Миграции установлены"
     echo "======"
