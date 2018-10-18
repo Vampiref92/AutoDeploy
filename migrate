@@ -1,18 +1,18 @@
 #!/usr/bin/env php
 <?php
-if (php_sapi_name() != 'cli') {
+if (php_sapi_name() !== 'cli') {
     die('Can not run in this mode. Bye!');
 }
-if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER["DOCUMENT_ROOT"])) {
-    $_SERVER["DOCUMENT_ROOT"] = realpath($argv[1]);
+if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
+    $_SERVER['DOCUMENT_ROOT'] = realpath($argv[1]);
 }
 $argv[1] = 'up';
-$localPath = $_SERVER["DOCUMENT_ROOT"] . '/local';
+$localPath = $_SERVER['DOCUMENT_ROOT'] . '/local';
 $toolPath = $localPath . '/modules/sprint.migration/tools/migrate.php';
 if (\file_exists($toolPath)) {
     require_once $toolPath;
 } else {
-    $bitrixPath = $_SERVER["DOCUMENT_ROOT"] . '/bitrix';
+    $bitrixPath = $_SERVER['DOCUMENT_ROOT'] . '/bitrix';
     $toolPath = $bitrixPath . '/modules/sprint.migration/tools/migrate.php';
     if (\file_exists($toolPath)) {
         require_once $toolPath;
