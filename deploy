@@ -3,6 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TOOLS_PATH="${DIR}/.."
 
+#if short option is not available - https://gist.github.com/dciccale/5560837
 CURRENT_BRANCH="$(git symbolic-ref --short HEAD)"
 
 # настройка миграций, путь до файла миграций относительно относительно папки с запускаемым файлом
